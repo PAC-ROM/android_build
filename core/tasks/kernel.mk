@@ -142,7 +142,15 @@ ifeq ($(TARGET_ARCH),arm)
       # Check that the executable is here.
       ccache := $(strip $(wildcard $(ccache)))
     endif
-    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN)/$(KERNEL_TOOLCHAIN_PREFIX)"
+    ifneq ($(TARGET_KERNEL_CUSTOM_TOOLCHAIN),)
+        ifeq ($(HOST_OS),darwin)
+            ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ANDROID_BUILD_TOP)/prebuilts/gcc/darwin-x86/toolchain/$(TARGET_KERNEL_CUSTOM_TOOLCHAIN)/bin/$(KERNEL_TOOLCHAIN_PREFIX)"
+        else
+            ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/toolchain/$(TARGET_KERNEL_CUSTOM_TOOLCHAIN)/bin/$(KERNEL_TOOLCHAIN_PREFIX)"
+        endif
+    else
+        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN)/$(KERNEL_TOOLCHAIN_PREFIX)"
+    endif
     ccache = 
 endif
 

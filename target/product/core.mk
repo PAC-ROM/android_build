@@ -71,7 +71,8 @@ PRODUCT_PACKAGES += \
     requestsync \
     telephony-common \
     voip-common \
-    framework-pac
+    framework-pac \
+    telephony-msim
 
 # host-only dependencies
 ifeq ($(WITH_HOST_DALVIK),true)

@@ -73,6 +73,7 @@ function check_product()
 
     if (echo -n $1 | grep -q -e "^pac_") ; then
        PAC_BUILD=$(echo -n $1 | sed -e 's/^pac_//g')
+       export BUILD_NUMBER=$((date +%s%N ; echo $PAC_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
     else
        PAC_BUILD=
     fi

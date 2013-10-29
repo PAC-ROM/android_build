@@ -64,7 +64,7 @@ parser.add_argument('-q', '--quiet', action='store_true', help='print as little 
 parser.add_argument('-v', '--verbose', action='store_true', help='print extra information to aid in debug')
 parser.add_argument('-f', '--force', action='store_true', help='force cherry pick even if commit has been merged')
 parser.add_argument('-p', '--pull', action='store_true', help='execute pull instead of cherry-pick')
-parser.add_argument('-t', '--topic', help='pick all commits from a specified topic')
+parser.add_argument('-t', '--topic', nargs='*', help='pick all commits from a specified topic')
 args = parser.parse_args()
 if args.start_branch == None and args.abandon_first:
     parser.error('if --abandon-first is set, you must also give the branch name with --start-branch')
@@ -187,47 +187,63 @@ while(True):
 
 # Get all commits for a specified topic
 if args.topic:
-    url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % args.topic
-    if args.verbose:
-        print('Fetching all commits from topic: %s\n' % args.topic)
-    f = urllib.request.urlopen(url)
-    d = f.read().decode("utf-8")
-    if args.verbose:
-        print('Result from request:\n' + d)
+    for argument in args.topic:
+        tag, gerrit = argument.split('_', 1)
 
-    # Clean up the result
-    d = d.split(')]}\'\n')[1]
-    matchObj = re.match(r'\[\s*\]', d)
-    if matchObj:
-        sys.stderr.write('ERROR: Topic %s was not found on the server\n' % args.topic)
-        sys.exit(1)
-    d = re.sub(r'\[(.*)\]', r'\1', d)
-    if args.verbose:
-        print('Result from request:\n' + d)
+        if 'CM' in gerrit:
+            url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % tag
+        elif 'PAC' in gerrit:
+            url = 'http://review.pac-rom.com/changes/?q=topic:%s' % tag
 
-    data = json.loads(d)
-    changelist = []
-    for c in xrange(0, len(data)):
-        changelist.append(data[c]['_number'])
+        if args.verbose:
+            print('Fetching all commits from topic: %s\n' % tag)
+        f = urllib.request.urlopen(url)
+        d = f.read().decode("utf-8")
+        if args.verbose:
+            print('Result from request:\n' + d)
 
-    # Reverse the array as we want to pick the lowest one first
-    args.change_number = reversed(changelist)
+        # Clean up the result
+        d = d.split(')]}\'\n')[1]
+        matchObj = re.match(r'\[\s*\]', d)
+        if matchObj:
+            sys.stderr.write('ERROR: Topic %s was not found on the server\n' % tag)
+            sys.exit(1)
+        # d = re.sub(r'\[(.*)\]', r'\1', d)
+        if args.verbose:
+            print('Result from request:\n' + d)
+
+        data = json.loads(d)
+        changelist = []
+        for c in xrange(0, len(data)):
+            changelist.append(int(data[c]['_number']))
+
+        # For compatibility with other gerrit commit (these 2 "reverse" will be delete later)
+        changelist.sort(reverse=True)
+
+        # Add the gerrit argument to the new list
+        changelist = [str(listitem) + ('_%s' % gerrit) for listitem in changelist]
+
+        # Reverse the array as we want to pick the lowest one first
+        args.change_number += reversed(changelist)
 
 # Check for range of commits and rebuild array
 changelist = []
-for change in args.change_number:
+for argument in args.change_number:
+    change, gerrit = argument.split('_', 1)
     c=str(change)
     if '-' in c:
         templist = c.split('-')
         for i in range(int(templist[0]), int(templist[1]) + 1):
-            changelist.append(str(i))
+            changelist.append(str(i) + ('_%s' % gerrit))
     else:
-        changelist.append(c)
+        changelist.append(c + ('_%s' % gerrit))
+        #changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
 
 args.change_number = changelist
 
 # Iterate through the requested change numbers
-for change in args.change_number:
+for argument in args.change_number:
+    change, gerrit = argument.split('_', 1)
     if not args.quiet:
         print('Applying change number %s ...' % change)
 
@@ -236,7 +252,27 @@ for change in args.change_number:
     # gerrit returns two lines, a magic string and then valid JSON:
     #   )]}'
     #   [ ... valid JSON ... ]
-    url = 'http://review.cyanogenmod.org/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+    if 'AOKP' in gerrit:
+        url = 'http://gerrit.aokp.co/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'aokp'
+    elif 'AOSP' in gerrit:
+        url = 'http://android-review.googlesource.com/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'aosp'
+    elif 'CM' in gerrit:
+        url = 'http://review.cyanogenmod.org/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'cm'
+    elif 'PAC' in gerrit:
+        url = 'http://review.pac-rom.com/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'pac'
+    elif 'PA' in gerrit:
+        url = 'http://gerrit.paranoidandroid.co/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'pa'
+    elif 'LX' in gerrit:
+        url = 'http://legacyxperia.us.to:8080/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'github'
+    else:
+        git_remote = 'github'
+
     if args.verbose:
         print('Fetching from: %s\n' % url)
     f = urllib.request.urlopen(url)
@@ -263,13 +299,18 @@ for change in args.change_number:
 
     # Extract information from the JSON response
     date_fluff       = '.000000000'
-    project_name     = data['project']
+    project_name_1   = data['project']
     change_number    = data['_number']
     status           = data['status']
     current_revision = data['revisions'][data['current_revision']]
     patch_number     = current_revision['_number']
-    fetch_url        = current_revision['fetch']['anonymous http']['url']
-    fetch_ref        = current_revision['fetch']['anonymous http']['ref']
+    if "PAC" in gerrit:
+        fetch_url    = ('http://review.pac-rom.com/%s' % (project_name_1))
+        short_change = str(change_number)[-2:]
+        fetch_ref    = ('refs/changes/%s/%s/%s' % (short_change, change_number, patch_number))
+    else:
+        fetch_url    = current_revision['fetch']['anonymous http']['url']
+        fetch_ref    = current_revision['fetch']['anonymous http']['ref']
     author_name      = current_revision['commit']['author']['name']
     author_email     = current_revision['commit']['author']['email']
     author_date      = current_revision['commit']['author']['date'].replace(date_fluff, '')
@@ -278,12 +319,28 @@ for change in args.change_number:
     committer_date   = current_revision['commit']['committer']['date'].replace(date_fluff, '')
     subject          = current_revision['commit']['subject']
 
+    # Truncate project name
+    if 'AOKP' in gerrit:
+        project_name=project_name_1[5:]
+    elif 'AOSP' in gerrit:
+        project_name=project_name_1
+    elif 'CM' in gerrit:
+        project_name=project_name_1[12:]
+    elif 'github' in gerrit:
+        project_name=project_name_1
+    elif 'PAC' in gerrit:
+        project_name=project_name_1
+    elif 'PA' in gerrit:
+        project_name=project_name_1[16:]
+    elif 'LX' in gerrit:
+        project_name=project_name_1
+
     # Check if commit has already been merged and exit if it has, unless -f is specified
     if status == "MERGED":
         if args.force:
             print("!! Force-picking a merged commit !!\n")
         else:
-            print("Commit already merged. Skipping the cherry pick.\nUse -f to force this pick.")
+            print("Commit already merged. Skipping the cherry pick.\nUse -f to force this pick.\n")
             continue;
 
     # Convert the project name to a project path
@@ -305,18 +362,20 @@ for change in args.change_number:
     # Print out some useful info
     if not args.quiet:
         print('--> Subject:       "%s"' % subject)
+        print('--> Gerrit:        %s' % gerrit)
         print('--> Project path:  %s' % project_path)
+        print('--> Fetch URL:     %s' % fetch_url)
         print('--> Change number: %d (Patch Set %d)' % (change_number, patch_number))
         print('--> Author:        %s <%s> %s' % (author_name, author_email, author_date))
         print('--> Committer:     %s <%s> %s' % (committer_name, committer_email, committer_date))
 
-    # Try fetching from GitHub first
+    # Fetch project from Gerrit
     if args.verbose:
-       print('Trying to fetch the change from GitHub')
+       print('Trying to fetch the change from GitHub/Gerrit')
     if args.pull:
       cmd = 'cd %s && git pull --no-edit github %s' % (project_path, fetch_ref)
     else:
-      cmd = 'cd %s && git fetch github %s' % (project_path, fetch_ref)
+      cmd = 'cd %s && git fetch %s %s' % (project_path, fetch_url, fetch_ref)
     execute_cmd(cmd)
     # Check if it worked
     FETCH_HEAD = '%s/.git/FETCH_HEAD' % project_path

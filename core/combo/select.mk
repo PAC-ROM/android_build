@@ -50,7 +50,7 @@ ifeq ($(TARGET_USE_O_LEVEL_S),true)
 $(combo_target)GLOBAL_CFLAGS := -Os -fno-exceptions -Wno-multichar
 $(combo_target)RELEASE_CFLAGS := -Os -g -fno-strict-aliasing
 
-else ifeq ($(TARGET_USE_O_LEVEL_2),true)
+else ifeq ($(TARGET_USE_O_LEVEL_3),true)
 $(combo_target)GLOBAL_CFLAGS := -O3 -fno-exceptions -Wno-multichar
 $(combo_target)RELEASE_CFLAGS := -O3 -g -fno-strict-aliasing
 

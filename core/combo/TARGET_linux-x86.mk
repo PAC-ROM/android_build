@@ -85,23 +85,63 @@ else
 endif
 KERNEL_HEADERS := $(KERNEL_HEADERS_COMMON) $(KERNEL_HEADERS_ARCH)
 
+ifeq ($(TARGET_USE_O_LEVEL_S),true)
 TARGET_GLOBAL_CFLAGS += \
-			-O2 \
-			-Ulinux \
-			-Wa,--noexecstack \
-			-Werror=format-security \
-			-D_FORTIFY_SOURCE=1 \
-			-Wstrict-aliasing=2 \
-			-fPIC -fPIE \
-			-ffunction-sections \
-			-finline-functions \
-			-finline-limit=300 \
-			-fno-inline-functions-called-once \
-			-fno-short-enums \
-			-fstrict-aliasing \
-			-funswitch-loops \
-			-funwind-tables \
-			-fstack-protector
+            -Os \
+            -Ulinux \
+            -Wa,--noexecstack \
+            -Werror=format-security \
+            -D_FORTIFY_SOURCE=1 \
+            -Wstrict-aliasing=2 \
+            -fPIC -fPIE \
+            -ffunction-sections \
+            -finline-functions \
+            -finline-limit=300 \
+            -fno-inline-functions-called-once \
+            -fno-short-enums \
+            -fstrict-aliasing \
+            -funswitch-loops \
+            -funwind-tables \
+            -fstack-protector
+
+else ifeq ($(TARGET_USE_O_LEVEL_3),true)
+TARGET_GLOBAL_CFLAGS += \
+            -O3 \
+            -Ulinux \
+            -Wa,--noexecstack \
+            -Werror=format-security \
+            -D_FORTIFY_SOURCE=1 \
+            -Wstrict-aliasing=2 \
+            -fPIC -fPIE \
+            -ffunction-sections \
+            -finline-functions \
+            -finline-limit=300 \
+            -fno-inline-functions-called-once \
+            -fno-short-enums \
+            -fstrict-aliasing \
+            -funswitch-loops \
+            -funwind-tables \
+            -fstack-protector
+
+else
+TARGET_GLOBAL_CFLAGS += \
+            -O2 \
+            -Ulinux \
+            -Wa,--noexecstack \
+            -Werror=format-security \
+            -D_FORTIFY_SOURCE=1 \
+            -Wstrict-aliasing=2 \
+            -fPIC -fPIE \
+            -ffunction-sections \
+            -finline-functions \
+            -finline-limit=300 \
+            -fno-inline-functions-called-once \
+            -fno-short-enums \
+            -fstrict-aliasing \
+            -funswitch-loops \
+            -funwind-tables \
+            -fstack-protector
+endif
 
 # option to enable pipe
 ifeq ($(TARGET_USE_PIPE),true)

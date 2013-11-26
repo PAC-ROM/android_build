@@ -80,7 +80,7 @@ TARGET_thumb_CFLAGS :=  -mthumb \
                         -fomit-frame-pointer \
                         -fno-strict-aliasing
 
-else ifeq ($(TARGET_USE_O_LEVEL_2),true)
+else ifeq ($(TARGET_USE_O_LEVEL_3),true)
 TARGET_arm_CFLAGS :=    -O3 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \

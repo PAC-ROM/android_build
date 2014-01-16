@@ -206,6 +206,9 @@ for argument in args.change_number:
     elif 'PA' in gerrit:
         url = 'http://gerrit.paranoidandroid.co/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
         git_remote = 'pa'
+    elif 'LX' in gerrit:
+        url = 'http://legacyxperia.us.to:8080/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        git_remote = 'github'
     else:
         git_remote = 'github'
 
@@ -268,6 +271,8 @@ for argument in args.change_number:
         project_name=project_name_1
     elif 'PA' in gerrit:
         project_name=project_name_1[16:]
+    elif 'LX' in gerrit:
+        project_name=project_name_1
 
     # Check if commit has already been merged and exit if it has, unless -f is specified
     if status == "MERGED":

@@ -437,6 +437,9 @@ endif
 ifeq ($(MAKECMDGOALS),novo)
 dont_bother := true
 endif
+ifeq ($(MAKECMDGOALS),magicbrownies)
+dont_bother := true
+endif
 ifeq ($(MAKECMDGOALS),dataclean)
 dont_bother := true
 endif
@@ -958,6 +961,12 @@ clobber: clean
 novo:
 	@rm -rf $(OUT_DIR)/target/*
 	@echo -e ${CL_GRN}"Target directory removed."${CL_RST}
+
+# This is one step better then novo, only clearing target/product
+.PHONY: magicbrownies
+magicbrownies:
+	@rm -rf $(OUT_DIR)/target/product/*
+	@echo -e ${CL_GRN}"Enjoy your magical adventure!"${CL_RST}
 
 # The rules for dataclean and installclean are defined in cleanbuild.mk.
 

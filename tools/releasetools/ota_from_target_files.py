@@ -710,6 +710,8 @@ endif;
   script.AddToZip(input_zip, output_zip, input_path=OPTIONS.updater_binary)
   WriteMetadata(metadata, output_zip)
 
+common.ZipWriteStr(output_zip, "META-INF/org/pacrom/releasekey",
+                     ""+input_zip.read("META/releasekey.txt"))
 
 def WritePolicyConfig(file_name, output_zip):
   common.ZipWrite(output_zip, file_name, os.path.basename(file_name))

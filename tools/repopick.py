@@ -64,7 +64,7 @@ parser.add_argument('-q', '--quiet', action='store_true', help='print as little 
 parser.add_argument('-v', '--verbose', action='store_true', help='print extra information to aid in debug')
 parser.add_argument('-f', '--force', action='store_true', help='force cherry pick even if commit has been merged')
 parser.add_argument('-p', '--pull', action='store_true', help='execute pull instead of cherry-pick')
-parser.add_argument('-t', '--topic', help='pick all commits from a specified topic')
+parser.add_argument('-t', '--topic', nargs='*', help='pick all commits from a specified topic')
 args = parser.parse_args()
 if args.start_branch == None and args.abandon_first:
     parser.error('if --abandon-first is set, you must also give the branch name with --start-branch')
@@ -187,31 +187,41 @@ while(True):
 
 # Get all commits for a specified topic
 if args.topic:
-    url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % args.topic
-    if args.verbose:
-        print('Fetching all commits from topic: %s\n' % args.topic)
-    f = urllib.request.urlopen(url)
-    d = f.read().decode("utf-8")
-    if args.verbose:
-        print('Result from request:\n' + d)
+    for argument in args.topic:
+        tag, gerrit = argument.split('_', 1)
 
-    # Clean up the result
-    d = d.split(')]}\'\n')[1]
-    matchObj = re.match(r'\[\s*\]', d)
-    if matchObj:
-        sys.stderr.write('ERROR: Topic %s was not found on the server\n' % args.topic)
-        sys.exit(1)
-    d = re.sub(r'\[(.*)\]', r'\1', d)
-    if args.verbose:
-        print('Result from request:\n' + d)
+        if 'CM' in gerrit:
+            url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % tag
+        elif 'PAC' in gerrit:
+            url = 'http://review.pac-rom.com/changes/?q=topic:%s' % tag
 
-    data = json.loads(d)
-    changelist = []
-    for c in xrange(0, len(data)):
-        changelist.append(data[c]['_number'])
+        if args.verbose:
+            print('Fetching all commits from topic: %s\n' % tag)
+        f = urllib.request.urlopen(url)
+        d = f.read().decode("utf-8")
+        if args.verbose:
+            print('Result from request:\n' + d)
 
-    # Reverse the array as we want to pick the lowest one first
-    args.change_number = reversed(changelist)
+        # Clean up the result
+        d = d.split(')]}\'\n')[1]
+        matchObj = re.match(r'\[\s*\]', d)
+        if matchObj:
+            sys.stderr.write('ERROR: Topic %s was not found on the server\n' % tag)
+            sys.exit(1)
+        d = re.sub(r'\[(.*)\]', r'\1', d)
+        if args.verbose:
+            print('Result from request:\n' + d)
+
+        data = json.loads(d)
+        changelist = []
+        for c in xrange(0, len(data)):
+            changelist.append(str(data[c]['_number']))
+
+        # Add the gerrit arguent to the new list
+        changelist = [s + ('_%s' % gerrit) for s in changelist]
+
+        # Reverse the array as we want to pick the lowest one first
+        args.change_number = reversed(changelist)
 
 # Iterate through the requested change numbers
 for argument in args.change_number:

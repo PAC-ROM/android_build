@@ -2628,12 +2628,19 @@ function chromium_prebuilt() {
     export TARGET_DEVICE=$(get_build_var TARGET_DEVICE)
     hash=$T/prebuilts/chromium/$TARGET_DEVICE/hash.txt
 
-    if [ -r $hash ] && [ $(git --git-dir=$T/external/chromium_org/.git --work-tree=$T/external/chromium_org rev-parse --verify HEAD) == $(cat $hash) ]; then
+    # Colors
+    txtbld=$(tput bold)
+    bldblu=${txtbld}$(tput setaf 4)
+    bldgrn=${txtbld}$(tput setaf 2)
+
+    if [ -r $hash ] && [ $(git --git-dir=$T/external/chromium_org/.git --work-tree=$T/external/chromium_org rev-parse --verify HEAD) == $(cat $hash) ] && [ -f $libsCheck ] && [ -d $appCheck ]; then
         export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=yes
-        echo "** Prebuilt Chromium is up-to-date; Will be used for build **"
+        echo -e ${bldblu}"Prebuilt Chromium is up-to-date: ${bldgrn}Will be used for build"${txtrst}
+        echo -e ""
     else
         export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=no
-        echo "** Prebuilt Chromium out-of-date/not found; Will build from source **"
+        echo -e ${bldblu}"Prebuilt Chromium out-of-date or not found: ${bldgrn}Will build from source"${txtrst}
+        echo -e ""
     fi
 }
 

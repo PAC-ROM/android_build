@@ -61,4 +61,6 @@ echo "ro.build.characteristics=$TARGET_AAPT_CHARACTERISTICS"
 
 echo "ro.pac.device=$PAC_DEVICE"
 
+echo "ro.pac.version=$PAC_VERSION"
+
 echo "# end build properties"

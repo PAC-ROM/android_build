@@ -46,3 +46,6 @@ echo "ro.build.characteristics=$TARGET_AAPT_CHARACTERISTICS"
 echo "ro.cm.device=$CM_DEVICE"
 
 echo "# end build properties"
+
+echo "# begin pacrom properties"
+echo "ro.pac.version=$PAC_VERSION"

@@ -217,15 +217,16 @@ if args.topic:
         for c in xrange(0, len(data)):
             changelist.append(str(data[c]['_number']))
 
-        # Add the gerrit arguent to the new list
-        changelist = [s + ('_%s' % gerrit) for s in changelist]
+        # Add the gerrit argument to the new list
+        changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
 
         # Reverse the array as we want to pick the lowest one first
         args.change_number = reversed(changelist)
 
 # Check for range of commits and rebuild array
 changelist = []
-for change in args.change_number:
+for argument in args.change_number:
+    change, gerrit = argument.split('_', 1)
     c=str(change)
     if '-' in c:
         templist = c.split('-')
@@ -233,6 +234,7 @@ for change in args.change_number:
             changelist.append(str(i))
     else:
         changelist.append(c)
+    changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
 
 args.change_number = changelist
 

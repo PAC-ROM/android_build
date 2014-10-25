@@ -231,10 +231,10 @@ for argument in args.change_number:
     if '-' in c:
         templist = c.split('-')
         for i in range(int(templist[0]), int(templist[1]) + 1):
-            changelist.append(str(i))
+            changelist.append(str(i) + ('_%s' % gerrit))
     else:
-        changelist.append(c)
-    changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
+        changelist.append(c + ('_%s' % gerrit))
+        #changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
 
 args.change_number = changelist
 

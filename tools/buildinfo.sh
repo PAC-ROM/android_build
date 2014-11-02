@@ -47,5 +47,8 @@ echo "ro.cm.device=$CM_DEVICE"
 
 echo "# end build properties"
 
+echo "# Hardware info"
+. ./vendor/pac/tools/hardware
+
 echo "# begin pacrom properties"
 echo "ro.pac.version=$PAC_VERSION"

@@ -221,7 +221,7 @@ if args.topic:
         changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
 
         # Reverse the array as we want to pick the lowest one first
-        args.change_number = reversed(changelist)
+        args.change_number += reversed(changelist)
 
 # Check for range of commits and rebuild array
 changelist = []

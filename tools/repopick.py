@@ -215,10 +215,13 @@ if args.topic:
         data = json.loads(d)
         changelist = []
         for c in xrange(0, len(data)):
-            changelist.append(str(data[c]['_number']))
+            changelist.append(int(data[c]['_number']))
+
+        # For compatibility with other gerrit commit (these 2 "reverse" will be delete later)
+        changelist.sort(reverse=True)
 
         # Add the gerrit argument to the new list
-        changelist = [listitem + ('_%s' % gerrit) for listitem in changelist]
+        changelist = [str(listitem) + ('_%s' % gerrit) for listitem in changelist]
 
         # Reverse the array as we want to pick the lowest one first
         args.change_number = reversed(changelist)

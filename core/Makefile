@@ -1609,9 +1609,6 @@ PAC_TARGET_PACKAGE := $(PRODUCT_OUT)/$(PAC_BUILD_VERSION).zip
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
-ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
-	$(error TARGET_CUSTOM_RELEASETOOL is deprecated)
-endif
 	$(hide) find $(PRODUCT_OUT) -maxdepth 1 -xdev -samefile $(INTERNAL_OTA_PACKAGE_TARGET) | grep -v ota-eng | xargs rm -f
 	$(hide) rm -f $(PRODUCT_OUT)/*.md5sum
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)

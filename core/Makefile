@@ -1739,9 +1739,6 @@ PAC_TARGET_PACKAGE := $(PRODUCT_OUT)/pac-$(PAC_VERSION).zip
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
-ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
-	$(error TARGET_CUSTOM_RELEASETOOL is deprecated)
-endif
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(PAC_TARGET_PACKAGE) > $(PAC_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}"Package Complete: $(PAC_TARGET_PACKAGE)"${CL_RST}

@@ -1688,9 +1688,34 @@ PAC_TARGET_PACKAGE := $(PRODUCT_OUT)/$(PAC_BUILD_VERSION).zip
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
+	$(hide) find $(PRODUCT_OUT) -maxdepth 1 -xdev -samefile $(INTERNAL_OTA_PACKAGE_TARGET) | grep -v ota-eng | xargs rm -f
+	$(hide) rm -f $(PRODUCT_OUT)/*.md5sum
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
-	$(hide) $(MD5SUM) $(PAC_TARGET_PACKAGE) > $(PAC_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_CYN}"Package Complete: $(PAC_TARGET_PACKAGE)"${CL_RST}
+	$(hide) (cd `dirname $(PAC_TARGET_PACKAGE)` && $(MD5SUM) `basename $(PAC_TARGET_PACKAGE)` > $(PAC_TARGET_PACKAGE).md5sum)
+	@echo -e ""
+	@echo -e ${CL_YLW}"PPPPPPPPPPPPPPPPP          AAA                    CCCCCCCCCCCCC"${CL_RST}
+	@echo -e ${CL_YLW}"P::::::::::::::::P        A:::A                CCC::::::::::::C"${CL_RST}
+	@echo -e ${CL_YLW}"P::::::PPPPPP:::::P      A:::::A             CC:::::::::::::::C"${CL_RST}
+	@echo -e ${CL_YLW}"PP:::::P     P:::::P    A:::::::A           C:::::CCCCCCCC::::C"${CL_RST}
+	@echo -e ${CL_YLW}"  P::::P     P:::::P   A:::::::::A         C:::::C       CCCCCC"${CL_RST}
+	@echo -e ${CL_YLW}"  P::::P     P:::::P  A:::::A:::::A       C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P::::PPPPPP:::::P  A:::::A A:::::A      C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P:::::::::::::PP  A:::::A   A:::::A     C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P::::PPPPPPPPP   A:::::A     A:::::A    C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P::::P          A:::::AAAAAAAAA:::::A   C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P::::P         A:::::::::::::::::::::A  C:::::C              "${CL_RST}
+	@echo -e ${CL_YLW}"  P::::P        A:::::AAAAAAAAAAAAA:::::A  C:::::C       CCCCCC"${CL_RST}
+	@echo -e ${CL_YLW}"PP::::::PP     A:::::A             A:::::A  C:::::CCCCCCCC::::C"${CL_RST}
+	@echo -e ${CL_YLW}"P::::::::P    A:::::A               A:::::A  CC:::::::::::::::C"${CL_RST}
+	@echo -e ${CL_YLW}"P::::::::P   A:::::A                 A:::::A   CCC::::::::::::C"${CL_RST}
+	@echo -e ${CL_YLW}"PPPPPPPPPP  AAAAAAA                   AAAAAAA     CCCCCCCCCCCCC"${CL_RST}
+	@echo -e ""
+	@echo -e ${CL_CYN}"=======================-Package complete-======================"${CL_RST}
+	@echo -e ${CL_CYN}"zip: "${CL_MAG} $(PAC_TARGET_PACKAGE)${CL_RST}
+	@echo -e ${CL_CYN}"md5: "${CL_MAG}" `cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
+	@echo -e ${CL_CYN}"size:"${CL_MAG}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
+	@echo -e ${CL_CYN}"==============================================================="${CL_RST}
+	@echo -e ""
 
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true

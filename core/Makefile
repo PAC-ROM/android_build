@@ -1569,7 +1569,9 @@ ifdef BUILD_NO
 	$(hide) echo "build_number=$(BUILD_NO)" >> $(zip_root)/META/misc_info.txt
 endif
 	$(call generate-userimage-prop-dictionary, $(zip_root)/META/misc_info.txt)
+ifneq ($(TARGET_NO_RECOVERY_PATCH),true)
 	$(hide) ./build/tools/releasetools/make_recovery_patch $(zip_root) $(zip_root)
+endif
 ifdef PRODUCT_DEFAULT_DEV_CERTIFICATE
 	$(hide) build/tools/getb64key.py $(PRODUCT_DEFAULT_DEV_CERTIFICATE).x509.pem > $(zip_root)/META/releasekey.txt
 else

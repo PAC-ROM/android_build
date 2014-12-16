@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2013 The CyanogenMod Project
+# Copyright (C) 2013-14 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpForm
     The --abandon-first argument, when used in conjuction with the
     --start-branch option, will cause repopick to abandon the specified
     branch in all repos first before performing any cherry picks.'''))
-parser.add_argument('change_number', nargs='*', help='change number to cherry pick')
+parser.add_argument('change_number', nargs='*', help='change number to cherry pick.  Use {change number}/{patchset number} to get a specific revision.')
 parser.add_argument('-i', '--ignore-missing', action='store_true', help='do not error out if a patch applies to a missing directory')
 parser.add_argument('-s', '--start-branch', nargs=1, help='start the specified branch before cherry picking')
 parser.add_argument('-a', '--abandon-first', action='store_true', help='before cherry picking, abandon the branch specified in --start-branch')
@@ -243,9 +243,25 @@ args.change_number = changelist
 
 # Iterate through the requested change numbers
 for argument in args.change_number:
-    change, gerrit = argument.split('_', 1)
+    changeps, gerrit = argument.split('_', 1)
+
+    if '/' in changeps:
+        change = changeps.split('/')[0]
+        patchset = changeps.split('/')[1]
+    else:
+        change = changeps
+        patchset = ''
+
     if not args.quiet:
-        print('Applying change number %s ...' % change)
+        if len(patchset) == 0:
+            print('Applying change number %s ...' % change)
+        else:
+            print('Applying change number {change}/{patchset} ...'.format(change=change, patchset=patchset))
+
+    if len(patchset) == 0:
+        query_revision = 'CURRENT_REVISION'
+    else:
+        query_revision = 'ALL_REVISIONS'
 
     # Fetch information about the change from Gerrit's REST API
     #
@@ -253,22 +269,22 @@ for argument in args.change_number:
     #   )]}'
     #   [ ... valid JSON ... ]
     if 'AOKP' in gerrit:
-        url = 'http://gerrit.aokp.co/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://gerrit.aokp.co/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'aokp'
     elif 'AOSP' in gerrit:
-        url = 'http://android-review.googlesource.com/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://android-review.googlesource.com/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'aosp'
     elif 'CM' in gerrit:
-        url = 'http://review.cyanogenmod.org/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://review.cyanogenmod.org/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'cm'
     elif 'PAC' in gerrit:
-        url = 'http://review.pac-rom.com/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://review.pac-rom.com/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'pac'
     elif 'PA' in gerrit:
-        url = 'http://gerrit.paranoidandroid.co/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://gerrit.paranoidandroid.co/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'pa'
     elif 'LX' in gerrit:
-        url = 'http://legacyxperia.us.to:8080/changes/?q=%s&o=CURRENT_REVISION&o=CURRENT_COMMIT&pp=0' % change
+        url = 'http://legacyxperia.us.to:8080/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'github'
     else:
         git_remote = 'github'
@@ -303,15 +319,36 @@ for argument in args.change_number:
     project_branch   = data['branch']
     change_number    = data['_number']
     status           = data['status']
+    patchsetfound    = False
+
+    if len(patchset) > 0:
+        try:
+            for revision in data['revisions']:
+                if (int(data['revisions'][revision]['_number']) == int(patchset)) and not patchsetfound:
+                    target_revision = data['revisions'][revision]
+                    if args.verbose:
+                       print('Using found patch set {patchset} ...'.format(patchset=patchset))
+                    patchsetfound = True
+                    break
+            if not patchsetfound:
+                print('ERROR: The patch set could not be found, using CURRENT_REVISION instead.')
+        except:
+            print('ERROR: The patch set could not be found, using CURRENT_REVISION instead.')
+            patchsetfound = False
+
+    if not patchsetfound:
+        target_revision = data['revisions'][data['current_revision']]
+
     current_revision = data['revisions'][data['current_revision']]
-    patch_number     = current_revision['_number']
+
+    patch_number     = target_revision['_number']
     if "PAC" in gerrit:
         fetch_url    = ('http://review.pac-rom.com/%s' % (project_name_1))
         short_change = str(change_number)[-2:]
         fetch_ref    = ('refs/changes/%s/%s/%s' % (short_change, change_number, patch_number))
     else:
-        fetch_url    = current_revision['fetch']['anonymous http']['url']
-        fetch_ref    = current_revision['fetch']['anonymous http']['ref']
+        fetch_url    = target_revision['fetch']['anonymous http']['url']
+        fetch_ref    = target_revision['fetch']['anonymous http']['ref']
     author_name      = current_revision['commit']['author']['name']
     author_email     = current_revision['commit']['author']['email']
     author_date      = current_revision['commit']['author']['date'].replace(date_fluff, '')

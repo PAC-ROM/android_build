@@ -31,12 +31,14 @@ import textwrap
 
 try:
   # For python3
+  import urllib.error
   import urllib.request
 except ImportError:
   # For python2
   import imp
   import urllib2
   urllib = imp.new_module('urllib')
+  urllib.error = urllib2
   urllib.request = urllib2
 
 # Parse the command line
@@ -291,7 +293,11 @@ for argument in args.change_number:
 
     if args.verbose:
         print('Fetching from: %s\n' % url)
-    f = urllib.request.urlopen(url)
+    try:
+        f = urllib.request.urlopen(url)
+    except urllib.error.URLError:
+        sys.stderr.write('ERROR: Server reported an error, or cannot be reached\n')
+        sys.exit(1)
     d = f.read().decode("utf-8")
     if args.verbose:
         print('Result from request:\n' + d)

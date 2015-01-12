@@ -33,6 +33,14 @@ Branch: refs/heads/pac-4.4
 Code-Review+2: Lokesh Chamane <lokesh.c703@gmail.com>
 Verified+1: Lokesh Chamane <lokesh.c703@gmail.com>
 Submitted-by: Lokesh Chamane <lokesh.c703@gmail.com>
+Submitted-at: Sun, 10 Aug 2014 13:58:45 -0500
+Reviewed-on: http://review.pac-rom.com/790
+Project: android_build
+Branch: refs/heads/pac-4.4
+
+Code-Review+2: Lokesh Chamane <lokesh.c703@gmail.com>
+Verified+1: Lokesh Chamane <lokesh.c703@gmail.com>
+Submitted-by: Lokesh Chamane <lokesh.c703@gmail.com>
 Submitted-at: Sun, 10 Aug 2014 14:58:45 -0400
 Reviewed-on: http://review.pac-rom.com/790
 Project: android_build

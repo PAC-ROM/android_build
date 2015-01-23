@@ -67,6 +67,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='print extra in
 parser.add_argument('-f', '--force', action='store_true', help='force cherry pick even if commit has been merged')
 parser.add_argument('-p', '--pull', action='store_true', help='execute pull instead of cherry-pick')
 parser.add_argument('-t', '--topic', nargs='*', help='pick all commits from a specified topic')
+parser.add_argument('-Q', '--query', nargs='*', help='pick all commits using the specified query')
 args = parser.parse_args()
 if args.start_branch == None and args.abandon_first:
     parser.error('if --abandon-first is set, you must also give the branch name with --start-branch')
@@ -77,10 +78,13 @@ if args.auto_branch:
         args.start_branch = ['auto']
 if args.quiet and args.verbose:
     parser.error('--quiet and --verbose cannot be specified together')
-if len(args.change_number) > 0 and args.topic:
-    parser.error('cannot specify a topic and change number(s) together')
-if len(args.change_number) == 0 and not args.topic:
-    parser.error('must specify at least one commit id or a topic')
+if len(args.change_number) > 0:
+    if args.topic or args.query:
+        parser.error('cannot specify a topic (or query) and change number(s) together')
+if args.topic and args.query:
+    parser.error('cannot specify a topic and a query together')
+if len(args.change_number) == 0 and not args.topic and not args.query:
+    parser.error('must specify at least one commit id or a topic or a query')
 
 # Helper function to determine whether a path is an executable file
 def is_exe(fpath):
@@ -218,6 +222,45 @@ if args.topic:
         changelist = []
         for c in xrange(0, len(data)):
             changelist.append(int(data[c]['_number']))
+
+        # For compatibility with other gerrit commit (these 2 "reverse" will be delete later)
+        changelist.sort(reverse=True)
+
+        # Add the gerrit argument to the new list
+        changelist = [str(listitem) + ('_%s' % gerrit) for listitem in changelist]
+
+        # Reverse the array as we want to pick the lowest one first
+        args.change_number += reversed(changelist)
+
+# Get all commits for a specified query
+if args.query:
+    for argument in args.query:
+        pquery, gerrit = argument.split('_', 1)
+        if 'CM' in gerrit:
+            url = 'http://review.cyanogenmod.org/changes/?q=%s' % pquery
+        elif 'PAC' in gerrit:
+            url = 'http://review.pac-rom.com/changes/?q=%s' % pquery
+        if args.verbose:
+            print('Fetching all commits using query: %s\n' % pquery)
+        f = urllib.request.urlopen(url)
+        d = f.read().decode("utf-8")
+        if args.verbose:
+            print('Result from request:\n' + d)
+
+        # Clean up the result
+        d = d.split(')]}\'\n')[1]
+        matchObj = re.match(r'\[\s*\]', d)
+        if matchObj:
+            sys.stderr.write('ERROR: Query %s was not found on the server\n' % pquery)
+            sys.exit(1)
+        d = re.sub(r'\[(.*)\]', r'\1', d)
+        if args.verbose:
+            print('Result from request:\n' + d)
+
+        data = json.loads(d)
+        changelist = []
+        for c in xrange(0, len(data)):
+            changelist.append(data[c]['_number'])
 
         # For compatibility with other gerrit commit (these 2 "reverse" will be delete later)
         changelist.sort(reverse=True)
@@ -459,4 +502,3 @@ for argument in args.change_number:
       execute_cmd(cmd)
     if not args.quiet:
         print('')
-

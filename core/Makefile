@@ -1713,6 +1713,18 @@ endif
 	@echo -e ${CL_RED}"OTA Link: "${CL_YLW}"http://pac-rom.com/ota/?device=$(TARGET_DEVICE)&version=$(PAC_BUILD_VERSION)&md5=`cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
 	@echo -e ${CL_GRN}"================================================================================"${CL_RST}
 	@echo -e ""
+	@echo -e ${CL_RED}"===========================-To ALL THE XDA NOOBS!-=============================="${CL_RST}
+	@echo -e ${CL_RED}"=============================-PLEASE READ THIS!-================================"${CL_RST}
+	@echo -e ""
+	@echo -e ${CL_GRN}"     Please remember that this source is currently for private builds ONLY!"${CL_RST}
+	@echo -e ""
+	@echo -e ${CL_GRN}"       Public builds are NOT ALLOWED, all public builds will be removed!"${CL_RST}
+	@echo -e ""
+	@echo -e ${CL_GRN}"   It will be welcomed after nightlies (5.0) begin. Thank you, the Developers."${CL_RST}
+	@echo -e ""
+	@echo -e ${CL_RED}"=============================-PLEASE READ THIS!-================================"${CL_RST}
+	@echo -e ${CL_RED}"===========================-To ALL THE XDA NOOBS!-=============================="${CL_RST}
+
 
 ifeq ($(USE_PREBUILT_CHROMIUM),1)
 ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)

@@ -195,7 +195,7 @@ while(True):
 # Get all commits for a specified topic
 if args.topic:
     for argument in args.topic:
-        tag, gerrit = argument.split('_', 1)
+        tag, gerrit = argument.rsplit('_', 1)
 
         if 'CM' in gerrit:
             url = 'http://review.cyanogenmod.org/changes/?q=topic:%s' % tag
@@ -236,7 +236,7 @@ if args.topic:
 # Get all commits for a specified query
 if args.query:
     for argument in args.query:
-        pquery, gerrit = argument.split('_', 1)
+        pquery, gerrit = argument.rsplit('_', 1)
         if 'CM' in gerrit:
             url = 'http://review.cyanogenmod.org/changes/?q=%s' % pquery
         elif 'PAC' in gerrit:
@@ -289,7 +289,7 @@ args.change_number = changelist
 
 # Iterate through the requested change numbers
 for argument in args.change_number:
-    changeps, gerrit = argument.split('_', 1)
+    changeps, gerrit = argument.rsplit('_', 1)
 
     if '/' in changeps:
         change = changeps.split('/')[0]

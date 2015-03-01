@@ -51,6 +51,9 @@ EOF
     done | column
 }
 
+# Load ANSI color palette
+. ./vendor/pac/tools/colors
+
 # Get the value of a build variable as an absolute path.
 function get_abs_build_var()
 {
@@ -2460,6 +2463,17 @@ function mk_timer()
         printf "(%s seconds)" $secs
     fi
     printf " ####${color_reset}\n\n"
+    echo
+    if [ $ret -eq 0 ] ; then
+        for i in "$@"; do
+            case $i in
+                bacon|bootimage|otapackage|recoveryimage|systemimage)
+                    . ./vendor/pac/tools/res/pac
+                    ;;
+                *)
+            esac
+        done
+    fi
     return $ret
 }
 
@@ -2500,7 +2514,7 @@ unset f
 
 # Add completions
 check_bash_version && {
-    dirs="sdk/bash_completion vendor/cm/bash_completion"
+    dirs="sdk/bash_completion vendor/pac/bash_completion"
     for dir in $dirs; do
     if [ -d ${dir} ]; then
         for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do

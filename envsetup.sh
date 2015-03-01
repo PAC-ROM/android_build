@@ -35,6 +35,9 @@ EOF
     done | column
 }
 
+# Load ANSI color palette
+. ./vendor/pac/tools/colors
+
 # Get the value of a build variable as an absolute path.
 function get_abs_build_var()
 {
@@ -1616,14 +1619,24 @@ function mk_timer()
         echo -n -e "${color_failed}#### make failed to build some targets "
     fi
     if [ $hours -gt 0 ] ; then
-        printf "(%02g:%02g:%02g (hh:mm:ss))" $hours $mins $secs
+        printf "${bldcya}(%02g:%02g:%02g (hh:mm:ss))${rst}" $hours $mins $secs
     elif [ $mins -gt 0 ] ; then
-        printf "(%02g:%02g (mm:ss))" $mins $secs
+        printf "${bldcya}(%02g:%02g (mm:ss))${rst}" $mins $secs
     elif [ $secs -gt 0 ] ; then
-        printf "(%s seconds)" $secs
+        printf "${bldcya}(%s seconds)${rst}" $secs
     fi
     echo -e " ####${color_reset}"
     echo
+    if [ $ret -eq 0 ] ; then
+        for i in "$@"; do
+            case $i in
+                bacon|bootimage|otapackage|recoveryimage|systemimage)
+                    . ./vendor/pac/tools/res/pac
+                    ;;
+                *)
+            esac
+        done
+    fi
     return $ret
 }
 

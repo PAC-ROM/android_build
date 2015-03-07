@@ -1682,6 +1682,14 @@ PAC_TARGET_PACKAGE := $(PRODUCT_OUT)/$(PAC_BUILD_VERSION).zip
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
+
+ifeq ($(USE_PREBUILT_CHROMIUM),1)
+ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
+	@echo "Running Chromium prebuilt setup script..."
+	$(hide) . $(TOPDIR)vendor/pac/tools/chromium_prebuilt.sh $(TOP)
+endif
+endif
+
 	$(hide) find $(PRODUCT_OUT) -maxdepth 1 -xdev -samefile $(INTERNAL_OTA_PACKAGE_TARGET) | grep -v ota-eng | xargs rm -f
 	$(hide) rm -f $(PRODUCT_OUT)/*.md5sum
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
@@ -1697,13 +1705,6 @@ else
 endif
 	@echo -e ${CL_BLD}${CL_RED}"OTA Link: "${CL_YLW}"http://pac-rom.com/ota/?device=$(TARGET_DEVICE)&version=$(PAC_BUILD_VERSION)&md5=`cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
 	@echo -e ${CL_BLD}${CL_GRN}"================================================================================"${CL_RST}
-
-ifeq ($(USE_PREBUILT_CHROMIUM),1)
-ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
-	@echo "Running Chromium prebuilt setup script..."
-	$(hide) . $(TOPDIR)vendor/pac/tools/chromium_prebuilt.sh $(TOP)
-endif
-endif
 
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true

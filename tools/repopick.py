@@ -330,7 +330,7 @@ for argument in args.change_number:
         url = 'http://gerrit.paranoidandroid.co/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'pa'
     elif 'LX' in gerrit:
-        url = 'http://msm7x30.org:8000/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
+        url = 'http://review.msm7x30.org/changes/?q={change}&o={query_revision}&o=CURRENT_COMMIT&pp=0'.format(change=change, query_revision=query_revision)
         git_remote = 'github'
     else:
         git_remote = 'github'

@@ -421,7 +421,7 @@ for argument in args.change_number:
     elif 'PA' in gerrit:
         project_name=project_name_1[16:]
     elif 'LX' in gerrit:
-        project_name=project_name_1
+        project_name=project_name_1[13:]
 
     # Check if commit has already been merged and exit if it has, unless -f is specified
     if status == "MERGED":

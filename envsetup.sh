@@ -150,6 +150,7 @@ function setpaths()
     paclowramdevice=$(get_build_var PAC_LOW_RAM_DEVICE)
     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
+    targetromcustomtoolchain=$(get_build_var TARGET_ROM_CUSTOM_TOOLCHAIN)
     export TARGET_GCC_VERSION=$targetgccversion
     export PAC_LOW_RAM_DEVICE=$paclowramdevice
 
@@ -162,10 +163,19 @@ function setpaths()
             ;;
         x86_64) toolchaindir=x86/x86_64-linux-android-$targetgccversion/bin
             ;;
-        arm) toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin
+        arm) if [ -n "$targetromcustomtoolchain" ] ; then
+                 toolchaindir=arm/$targetromcustomtoolchain/bin
+             else
+                 toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin
+             fi
             ;;
-        arm64) toolchaindir=aarch64/aarch64-linux-android-$targetgccversion/bin;
-               toolchaindir2=arm/arm-linux-androideabi-$targetgccversion2/bin
+        arm64) if [ -n "$targetromcustomtoolchain" ] ; then
+                   toolchaindir=aarch64/$targetromcustomtoolchain/bin
+                   toolchaindir2=arm/$targetromcustomtoolchain/bin
+               else
+                   toolchaindir=aarch64/aarch64-linux-android-$targetgccversion/bin;
+                   toolchaindir2=arm/arm-linux-androideabi-$targetgccversion2/bin
+               fi
             ;;
         mips|mips64) toolchaindir=mips/mips64el-linux-android-$targetgccversion/bin
             ;;

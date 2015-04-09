@@ -238,7 +238,11 @@ ifneq ($(USE_CCACHE),)
     ccache := $(strip $(wildcard $(ccache)))
 endif
 
-KERNEL_CROSS_COMPILE := CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN_PATH)"
+ifneq ($(TARGET_KERNEL_CUSTOM_TOOLCHAIN),)
+    KERNEL_CROSS_COMPILE := CROSS_COMPILE="$(ccache) $(ANDROID_BUILD_TOP)/prebuilts/gcc/toolchain/$(TARGET_KERNEL_CUSTOM_TOOLCHAIN)/bin/$(KERNEL_TOOLCHAIN_PREFIX)"
+else
+    KERNEL_CROSS_COMPILE := CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN_PATH)"
+endif
 ccache =
 
 define mv-modules

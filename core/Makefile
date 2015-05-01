@@ -1717,6 +1717,7 @@ endif
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
 	$(hide) (cd `dirname $(PAC_TARGET_PACKAGE)` && $(MD5SUM) `basename $(PAC_TARGET_PACKAGE)` > $(PAC_TARGET_PACKAGE).md5sum)
 	@echo -e ""
+ifneq ($(TARGET_IGNORE_ERRORS),true)
 	@echo -e ${CL_BLD}${CL_GRN}"===============================-Package complete-==============================="${CL_RST}
 	@echo -e ${CL_BLD}${CL_RED}"Zip: "${CL_YLW} $(PAC_TARGET_PACKAGE)${CL_RST}
 	@echo -e ${CL_BLD}${CL_RED}"MD5: "${CL_YLW}" `cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
@@ -1727,7 +1728,10 @@ else
 endif
 	@echo -e ${CL_BLD}${CL_RED}"OTA Link: "${CL_YLW}"http://pac-rom.com/ota/?device=$(TARGET_DEVICE)&version=$(PAC_BUILD_VERSION)&md5=`cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
 	@echo -e ${CL_BLD}${CL_GRN}"================================================================================"${CL_RST}
+else
+	@echo -e ${CL_BLD}${CL_RED}"============-Package completed with errors ignored.  Do not publish-============"${CL_RST}
 
+endif    # built with ignore errors set
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
 endif    # TARGET_DEVICE != generic*

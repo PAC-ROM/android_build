@@ -181,7 +181,7 @@ include $(BUILD_SYSTEM)/device.mk
 
 # A PAC build needs only the PAC product makefiles.
 ifneq ($(PAC_BUILD),)
-  all_product_configs := $(shell ls device/*/$(PAC_BUILD)/pac.mk)
+  all_product_configs := $(shell find device -path "*/$(PAC_BUILD)/pac.mk")
 else
   ifneq ($(strip $(TARGET_BUILD_APPS)),)
   # An unbundled app build needs only the core product makefiles.

@@ -662,13 +662,6 @@ function lunch()
 
     echo
 
-    if [[ $USE_PREBUILT_CHROMIUM -eq 1 ]]; then
-        chromium_prebuilt
-    else
-        # Unset flag in case user opts out later on
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=""
-    fi
-
     fixup_common_out_dir
 
     set_stuff_for_environment
@@ -2978,27 +2971,6 @@ function mk_timer()
 function make()
 {
     mk_timer $(get_make_command) "$@"
-}
-
-function chromium_prebuilt() {
-    T=$(gettop)
-    export TARGET_DEVICE=$(get_build_var TARGET_DEVICE)
-    hash=$T/prebuilts/chromium/$TARGET_DEVICE/hash.txt
-    libsCheck=$T/prebuilts/chromium/$TARGET_DEVICE/lib/libwebviewchromium.so
-    libsCheckLoader=$T/prebuilts/chromium/$TARGET_DEVICE/lib/libwebviewchromium_loader.so
-    libsCheckSupport=$T/prebuilts/chromium/$TARGET_DEVICE/lib/libwebviewchromium_plat_support.so
-    AppCheck=$T/prebuilts/chromium/$TARGET_DEVICE/app/webview/webview.apk
-    AppLibCheck=$T/prebuilts/chromium/$TARGET_DEVICE/app/webview/lib/arm/libwebviewchromium.so
-    device_target=$T/prebuilts/chromium/$TARGET_DEVICE/
-
-    if [ -r $hash ] && [ $(git --git-dir=$T/external/chromium_org/.git --work-tree=$T/external/chromium_org rev-parse --verify HEAD) == $(cat $hash) ] && [ -f $libsCheck ]  && [ -f $libsCheckLoader ] && [ -f $libsCheckSupport ]  && [ -f $AppCheck ] && [ -L $AppLibCheck ]; then
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=yes
-        echo -e "${bldcya}Prebuilt Chromium is up-to-date: ${bldgrn}Will be used for build${rst}"
-    else
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=no
-        echo -e "${bldcya}Prebuilt Chromium out-of-date or not found: ${bldylw}Will build from source${rst}"
-        rm -rfv $device_target &>/dev/null
-    fi
 }
 
 if [ "x$SHELL" != "x/bin/bash" ]; then

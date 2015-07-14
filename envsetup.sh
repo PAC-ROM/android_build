@@ -21,6 +21,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - godir:   Go to the directory containing a file.
 - mka:      Builds using SCHED_BATCH on all processors
 - pacgerrit: A Git wrapper that fetches/pushes patch from/to PAC Gerrit Review
+- pacremote: Add git remote for PAC Gerrit Review
 - reposync: Parallel repo sync using ionice and SCHED_BATCH
 
 Environemnt options:
@@ -1886,6 +1887,28 @@ EOF
                 || return 1
             ;;
     esac
+}
+
+function pacremote()
+{
+    git remote rm pacremote 2> /dev/null
+    GERRIT_REMOTE=$(git config --get remote.pac.projectname)
+    if [ -z "$GERRIT_REMOTE" ]
+    then
+        GERRIT_REMOTE=$(git config --get remote.ss.projectname)
+        if [ -z "$GERRIT_REMOTE" ]
+        then
+            echo Unable to set up the git remote, are you under a pac/ss git repo?
+            return 0
+        fi
+    fi
+    PACUSER=$(git config --get review.review.pac-rom.com.username)
+    if [ -z "$PACUSER" ]
+    then
+        read -p "Please provide your PAC Gerrit username: " PACUSER
+    fi
+    git remote add pacremote ssh://$PACUSER@review.pac-rom.com:29418/$GERRIT_REMOTE
+    echo You can now push to "pacremote".
 }
 
 function make()

@@ -20,6 +20,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - sgrep:   Greps on all local source files.
 - godir:   Go to the directory containing a file.
 - cmremote: Add git remote for CM Gerrit Review
+- pacremote: Add git remote for PAC Gerrit Review
 - cmgerrit: A Git wrapper that fetches/pushes patch from/to CM Gerrit Review
 - cmrebase: Rebase a Gerrit change and push it again
 - aospremote: Add git remote for matching AOSP repository
@@ -1963,6 +1964,28 @@ function cafremote()
     fi
     git remote add caf git://codeaurora.org/$PFX$PROJECT
     echo "Remote 'caf' created"
+}
+
+function pacremote()
+{
+    git remote rm pacremote 2> /dev/null
+    GERRIT_REMOTE=$(git config --get remote.pac.projectname)
+    if [ -z "$GERRIT_REMOTE" ]
+    then
+        GERRIT_REMOTE=$(git config --get remote.ss.projectname)
+        if [ -z "$GERRIT_REMOTE" ]
+        then
+            echo Unable to set up the git remote, are you under a pac/ss git repo?
+            return 0
+        fi
+    fi
+    PACUSER=$(git config --get review.review.pac-rom.com.username)
+    if [ -z "$PACUSER" ]
+    then
+        read -p "Please provide your PAC Gerrit username: " PACUSER
+    fi
+    git remote add pacremote ssh://$PACUSER@review.pac-rom.com:29418/$GERRIT_REMOTE
+    echo You can now push to "pacremote".
 }
 
 function installboot()

@@ -22,8 +22,8 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - cmremote: Add git remote for CM Gerrit Review
 - pacremote: Add git remote for PAC Gerrit Review
 - cmgerrit: A Git wrapper that fetches/pushes patch from/to CM Gerrit Review
-- pacgerrit: A Git wrapper that fetches/pushes patch from/to PAC Gerrit Review
-- cmrebase: Rebase a Gerrit change and push it again
+- cmrebase: Rebase a CM Gerrit change and push it again
+- pacrebase: Rebase a PAC Gerrit change and push it again
 - aospremote: Add git remote for matching AOSP repository
 - cafremote: Add git remote for matching CodeAurora repository.
 - mka:      Builds using SCHED_BATCH on all processors
@@ -2624,6 +2624,56 @@ function mka() {
             mk_timer schedtool -B -n 1 -e ionice -n 1 make -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
             ;;
     esac
+}
+
+function pacrebase() {
+    local repo=$1
+    local refs=$2
+    local pwd="$(pwd)"
+    local dir="$(gettop)/$repo"
+
+    if [ -z $repo ] || [ -z $refs ]; then
+        echo "PAC-ROM Gerrit Rebase Usage: "
+        echo "      pacrebase <path to project> <patch IDs on Gerrit>"
+        echo "      The patch IDs appear on the Gerrit commands that are offered."
+        echo "      They consist on a series of numbers and slashes, after the text"
+        echo "      refs/changes. For example, the ID in the following command is 26/8126/2"
+        echo ""
+        echo "      git[...]ges_apps_Camera refs/changes/26/8126/2 && git cherry-pick FETCH_HEAD"
+        echo ""
+        return
+    fi
+
+    if [ ! -d $dir ]; then
+        echo "Directory $dir doesn't exist in tree."
+        return
+    fi
+    cd $dir
+    repo=`git config --get remote.pac.projectname`
+    if [ -z "$repo" ]
+    then
+        repo=`git config --get remote.ss.projectname`
+        if [ -z "$repo" ]
+        then
+            echo "Unable to find the project name, did you specify a pac/ss remote?"
+            return 0
+        fi
+    fi
+    echo "Starting branch..."
+    repo start tmprebase .
+    echo "Bringing it up to date..."
+    repo sync .
+    echo "Fetching change..."
+    git fetch "http://review.pac-rom.com/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
+    if [ "$?" != "0" ]; then
+        echo "Error cherry-picking. Not uploading!"
+        return
+    fi
+    echo "Uploading..."
+    repo upload .
+    echo "Cleaning up..."
+    repo abandon tmprebase .
+    cd $pwd
 }
 
 function cmka() {

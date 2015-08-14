@@ -89,8 +89,10 @@ $(info   HOST_OS_EXTRA=$(BLDBLU)$(HOST_OS_EXTRA)$(RST))
 $(info   HOST_BUILD_TYPE=$(BLDBLU)$(HOST_BUILD_TYPE)$(RST))
 $(info   BUILD_ID=$(BLDBLU)$(BUILD_ID)$(RST))
 $(info   OUT_DIR=$(BLDBLU)$(OUT_DIR)$(RST))
-ifeq ($(CYNGN_TARGET),true)
+ifneq (,$(filter true, $(CYNGN_TARGET) $(EXTERNAL_CLEAN_TARGET)))
+ifeq ($(CYNGN_TARGET), true)
 $(info   CYNGN_TARGET=$(BLDBLU)$(CYNGN_TARGET)$(RST))
+endif
 $(info   CYNGN_FEATURES=$(BLDBLU)$(CYNGN_FEATURES)$(RST))
 endif
 $(info $(BLDMAG)$(LINE)$(RST))

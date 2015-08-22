@@ -141,8 +141,8 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', action='store_true', help='print extra information to aid in debug')
     parser.add_argument('-f', '--force', action='store_true', help='force cherry pick even if commit has been merged')
     parser.add_argument('-p', '--pull', action='store_true', help='execute pull instead of cherry-pick')
-    parser.add_argument('-t', '--topic', help='pick all commits from a specified topic')
-    parser.add_argument('-Q', '--query', help='pick all commits using the specified query')
+    parser.add_argument('-t', '--topic', nargs='*', help='pick all commits from a specified topic')
+    parser.add_argument('-Q', '--query', nargs='*', help='pick all commits using the specified query')
     parser.add_argument('-g', '--gerrit', default='http://review.pac-rom.com', help='Gerrit Instance to use. Form proto://[user@]host[:port]')
     args = parser.parse_args()
     print (args.gerrit)
@@ -205,19 +205,28 @@ if __name__ == '__main__':
     # get data on requested changes
     reviews = []
     change_numbers = []
+    change_list = []
     if args.topic:
-        for topics in args.topic:
-            reviews = fetch_query(args.gerrit, 'topics:{0}'.format(topic))
-            change_numbers += [str(r['number']) for r in reviews]
+        for every_topic in args.topic:
+            reviews += fetch_query(args.gerrit, 'topic:"{0}"'.format(every_topic))
+            change_list += [str(r['number']) for r in reviews]
     if args.query:
         for queries in args.query:
-            reviews = fetch_query(args.gerrit, queries)
-            change_numbers += [str(r['number']) for r in reviews]
+            reviews += fetch_query(args.gerrit, queries)
+            change_list += [str(r['number']) for r in reviews]
     if args.change_number:
-        reviews = fetch_query(args.gerrit, ' OR '.join('change:{0}'.format(x.split('/')[0]) for x in args.change_number))
-        change_numbers = args.change_number
-    # make list of things to actually merge
+        for a_change in args.change_number:
+            if '-' in a_change:
+                templist = a_change.split('-')
+                for i in range(int(templist[0]), int(templist[1]) + 1):
+                    change_list += [str(i)]
+            else:
+                change_list += [a_change]
+        reviews += fetch_query(args.gerrit, ' OR '.join('change:{0}'.format(x.split('/')[0]) for x in change_list))
 
+    # make list of things to actually merge
+    change_list.sort(reverse=True)
+    change_numbers = set(change_list)
     mergables = []
 
     for change in change_numbers:

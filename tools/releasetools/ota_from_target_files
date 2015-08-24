@@ -651,11 +651,17 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     system_diff.WriteScript(script, output_zip)
   else:
     script.Print("Formatting system partition")
-    script.FormatPartition("/system")
-    script.Mount("/system", recovery_mount_options)
+    if os.environ.has_key("TARGET_CUSTOM_SYSTEM_FORMAT"):
+      script.AppendExtra("run_program(\"/tmp/install/bin/format.sh\");")
+      script.Mount("/system")
+    else:
+      script.FormatPartition("/system")
+      script.Mount("/system", recovery_mount_options)
+    script.Print("Installing...");
     if not has_recovery_patch:
       script.UnpackPackageDir("recovery", "/system")
     script.UnpackPackageDir("system", "/system")
+    script.Print("Making symlinks...");
     symlinks = CopyPartitionFiles(system_items, input_zip, output_zip)
     script.MakeSymlinks(symlinks)
 

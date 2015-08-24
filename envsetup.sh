@@ -148,10 +148,12 @@ function setpaths()
 
     # defined in core/config.mk
     paclowramdevice=$(get_build_var PAC_LOW_RAM_DEVICE)
+    targetcustomsysformat=$(get_build_var TARGET_CUSTOM_SYSTEM_FORMAT)
     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
     targetromcustomtoolchain=$(get_build_var TARGET_ROM_CUSTOM_TOOLCHAIN)
     export TARGET_GCC_VERSION=$targetgccversion
+    export TARGET_CUSTOM_SYSTEM_FORMAT=$targetcustomsysformat
     export PAC_LOW_RAM_DEVICE=$paclowramdevice
 
     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.

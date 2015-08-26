@@ -225,8 +225,7 @@ if __name__ == '__main__':
         reviews += fetch_query(args.gerrit, ' OR '.join('change:{0}'.format(x.split('/')[0]) for x in change_list))
 
     # make list of things to actually merge
-    change_list.sort(reverse=True)
-    change_numbers = set(change_list)
+    change_numbers = sorted(set(change_list))
     mergables = []
 
     for change in change_numbers:

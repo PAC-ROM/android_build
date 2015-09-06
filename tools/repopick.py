@@ -319,33 +319,18 @@ if __name__ == '__main__':
             print('--> Project path:  {0}'.format(project_path))
             print('--> Change number: {0} (Patch Set {0})'.format(item['id']))
 
-        # Try fetching from GitHub first
-        if args.verbose:
-            print('Trying to fetch the change from GitHub')
-
+        # Fetch the change
         if 'anonymous http' in item['fetch']:
             method = 'anonymous http'
         else:
             method = 'ssh'
-
+        if args.verbose:
+            print('Trying to fetch the change from Gerrit')
         if args.pull:
-            cmd = ['git pull --no-edit github', item['fetch'][method]['ref']]
+            cmd = ['git pull --no-edit', item['fetch'][method]['url'], item['fetch'][method]['ref']]
         else:
-            cmd = ['git fetch github', item['fetch'][method]['ref']]
-
-        print(cmd)
+            cmd = ['git fetch', item['fetch'][method]['url'], item['fetch'][method]['ref']]
         subprocess.call([' '.join(cmd)], cwd=project_path, shell=True)
-        # Check if it worked
-        FETCH_HEAD = '{0}/.git/FETCH_HEAD'.format(project_path)
-        if os.stat(FETCH_HEAD).st_size == 0:
-            # That didn't work, fetch from Gerrit instead
-            if args.verbose:
-                print('Fetching from GitHub didn\'t work, trying to fetch the change from Gerrit')
-            if args.pull:
-                cmd = ['git pull --no-edit', item['fetch'][method]['url'], item['fetch'][method]['ref']]
-            else:
-                cmd = ['git fetch', item['fetch'][method]['url'], item['fetch'][method]['ref']]
-            subprocess.call([' '.join(cmd)], cwd=project_path, shell=True)
         # Perform the cherry-pick
         if not args.pull:
             cmd = ['git cherry-pick FETCH_HEAD']

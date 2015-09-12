@@ -146,14 +146,6 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 
-# option to enable pipe
-ifeq ($(TARGET_USE_PIPE),true)
-    $(combo_2nd_arch_prefix)TARGET_arm_CFLAGS += -pipe
-    $(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS += -pipe
-    $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -pipe
-    $(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS += -pipe
-endif
-
 # More flags/options can be added here
 $(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := \
 			-DNDEBUG \

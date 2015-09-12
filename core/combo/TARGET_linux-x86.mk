@@ -98,11 +98,6 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += $(arch_variant_cflags)
 
-# option to enable pipe
-ifeq ($(TARGET_USE_PIPE),true)
-    $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -pipe
-endif
-
 ifeq ($(ARCH_X86_HAVE_SSSE3),true)   # yes, really SSSE3, not SSE3!
     $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -DUSE_SSSE3 -mssse3
 endif

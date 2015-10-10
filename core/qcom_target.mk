@@ -11,6 +11,9 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         TARGET_GLOBAL_CPPFLAGS += -DQCOM_BSP
     endif
 
+    # Tell HALs that we're compiling an AOSP build with an in-line kernel
+    TARGET_COMPILE_WITH_MSM_KERNEL := true
+
     # Enable DirectTrack for legacy targets
     ifneq ($(filter caf bfam,$(TARGET_QCOM_AUDIO_VARIANT)),)
         ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)

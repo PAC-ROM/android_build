@@ -2472,7 +2472,7 @@ function mk_timer()
             for i in "$@"; do
                 case $i in
                     bacon|bootimage|otapackage|recoveryimage|systemimage)
-                        . ./vendor/pac/tools/res/pac
+                        . ./vendor/pac/tools/res/pac-warning
                         ;;
                     *)
                 esac

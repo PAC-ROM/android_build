@@ -41,11 +41,11 @@ endif
 # (Allow any version under Cygwin since we don't actually build the platform there.)
 ifeq (,$(findstring CYGWIN,$(shell uname -sm)))
 ifneq (1,$(strip $(shell expr $(MAKE_VERSION) \>= 3.81)))
-$(warning ********************************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(warning *  You are using version $(MAKE_VERSION) of make.)
 $(warning *  Android can only be built by versions 3.81 and higher.)
 $(warning *  see https://source.android.com/source/download.html)
-$(warning ********************************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(error stopping)
 endif
 endif
@@ -127,10 +127,10 @@ ifneq (a,$(shell mkdir -p $(OUT_DIR) ; \
                 echo a > $(OUT_DIR)/casecheck.txt; \
                     echo B > $(OUT_DIR)/CaseCheck.txt; \
                 cat $(OUT_DIR)/casecheck.txt))
-$(warning ************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(warning You are building on a case-insensitive filesystem.)
 $(warning Please move your source tree to a case-sensitive filesystem.)
-$(warning ************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(error Case-insensitive filesystems not supported)
 endif
 endif
@@ -138,7 +138,7 @@ endif
 # Make sure that there are no spaces in the absolute path; the
 # build system can't deal with them.
 ifneq ($(words $(shell pwd)),1)
-$(warning ************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(warning You are building in a directory whose absolute path contains)
 $(warning a space character:)
 $(warning $(space))
@@ -146,7 +146,7 @@ $(warning "$(shell pwd)")
 $(warning $(space))
 $(warning Please move your source tree to a path that does not contain)
 $(warning any spaces.)
-$(warning ************************************************************)
+$(warning $(BLDMAG)$(PUNT)$(RST))
 $(error Directory names containing spaces not supported)
 endif
 
@@ -168,7 +168,7 @@ javac_version := $(shell echo '$(javac_version_str)' | grep '[ "]1\.7[\. "$$]')
 endif # if EXPERIMENTAL_USE_JAVA8
 
 ifeq ($(strip $(java_version)),)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info You are attempting to build with the incorrect version)
 $(info of java.)
 $(info $(space))
@@ -177,7 +177,7 @@ $(info The required version is: $(required_version))
 $(info $(space))
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)https://source.android.com/source/initializing.html)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(error stop)
 endif
 
@@ -195,26 +195,26 @@ ifeq ($(requires_openjdk), true)
 # The user asked for java7 openjdk, so check that the host
 # java version is really openjdk
 ifeq ($(shell echo '$(java_version_str)' | grep -i openjdk),)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info You asked for an OpenJDK 7 build but your version is)
 $(info $(java_version_str).)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 endif # java version is not OpenJdk
 else # if requires_openjdk
 ifneq ($(shell echo '$(java_version_str)' | grep -i openjdk),)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info You are attempting to build with an unsupported JDK.)
 $(info $(space))
 $(info You use OpenJDK but only Sun/Oracle JDK is supported.)
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)https://source.android.com/source/download.html)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 endif # java version is not Sun Oracle JDK
 endif # if requires_openjdk
 
 # Check for the correct version of javac
 ifeq ($(strip $(javac_version)),)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info You are attempting to build with the incorrect version)
 $(info of javac.)
 $(info $(space))
@@ -223,7 +223,7 @@ $(info The required version is: $(required_javac_version))
 $(info $(space))
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)https://source.android.com/source/download.html)
-$(info ************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
 endif
 
 
@@ -255,24 +255,24 @@ include $(BUILD_SYSTEM)/definitions.mk
 include $(BUILD_SYSTEM)/dex_preopt.mk
 
 ifneq ($(filter user userdebug eng,$(MAKECMDGOALS)),)
-$(info ***************************************************************)
-$(info ***************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info Do not pass '$(filter user userdebug eng,$(MAKECMDGOALS))' on \
        the make command line.)
 $(info Set TARGET_BUILD_VARIANT in buildspec.mk, or use lunch or)
 $(info choosecombo.)
-$(info ***************************************************************)
-$(info ***************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(error stopping)
 endif
 
 ifneq ($(filter-out $(INTERNAL_VALID_VARIANTS),$(TARGET_BUILD_VARIANT)),)
-$(info ***************************************************************)
-$(info ***************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(info Invalid variant: $(TARGET_BUILD_VARIANT))
 $(info Valid values are: $(INTERNAL_VALID_VARIANTS))
-$(info ***************************************************************)
-$(info ***************************************************************)
+$(info $(BLDMAG)$(PUNT)$(RST))
+$(info $(BLDMAG)$(PUNT)$(RST))
 $(error stopping)
 endif
 
@@ -526,6 +526,7 @@ endif
 
 include $(BUILD_SYSTEM)/legacy_prebuilts.mk
 ifneq ($(filter-out $(GRANDFATHERED_ALL_PREBUILT),$(strip $(notdir $(ALL_PREBUILT)))),)
+  $(warning $(BLDMAG)$(PUNT)$(RST))
   $(warning *** Some files have been added to ALL_PREBUILT.)
   $(warning *)
   $(warning * ALL_PREBUILT is a deprecated mechanism that)
@@ -538,6 +539,7 @@ ifneq ($(filter-out $(GRANDFATHERED_ALL_PREBUILT),$(strip $(notdir $(ALL_PREBUIL
   $(foreach bad_prebuilt,$(filter-out $(GRANDFATHERED_ALL_PREBUILT),$(strip $(notdir $(ALL_PREBUILT)))),$(warning * unexpected $(bad_prebuilt) in ALL_PREBUILT))
   $(warning *)
   $(error ALL_PREBUILT contains unexpected files)
+  $(warning $(BLDMAG)$(PUNT)$(RST))
 endif
 
 # -------------------------------------------------------------------

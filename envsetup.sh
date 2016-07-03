@@ -2460,12 +2460,11 @@ function mk_timer()
         printf "(%s seconds)" $secs
     fi
     printf " ####${color_reset}\n\n"
-    echo
     if [ -z "$JENK_ENV" ] ; then
         if [ $ret -eq 0 ] ; then
             for i in "$@"; do
                 case $i in
-                    bacon|bootimage|otapackage|recoveryimage|systemimage)
+                    bacon|bootimage|bootzip|otapackage|recoveryimage|systemimage)
                         . ./vendor/pac/tools/res/pac
                         ;;
                     *)

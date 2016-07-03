@@ -1939,13 +1939,10 @@ bacon: otapackage
 	$(hide) (cd `dirname $(PAC_TARGET_PACKAGE)` && $(MD5SUM) `basename $(PAC_TARGET_PACKAGE)` > $(PAC_TARGET_PACKAGE).md5sum)
 	@echo -e ""
 	@echo -e ${CL_BLD}${CL_GRN}"===============================-Package complete-==============================="${CL_RST}
-	@echo -e ${CL_BLD}${CL_RED}"Zip: "${CL_YLW} $(PAC_TARGET_PACKAGE)${CL_RST}
-	@echo -e ${CL_BLD}${CL_RED}"MD5: "${CL_YLW}" `cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
-ifeq ($(HOST_OS),darwin)
-	@echo -e ${CL_BLD}${CL_RED}"Size:"${CL_YLW}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 9`"${CL_RST}
-else
-	@echo -e ${CL_BLD}${CL_RED}"Size:"${CL_YLW}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
-endif
+	@echo -e ${CL_BLD}${CL_RED}"OUTDIR:"${CL_YLW} $(PRODUCT_OUT)${CL_RST}
+	@echo -e ${CL_BLD}${CL_RED}"   ROM:"${CL_YLW} $(PAC_BUILD_VERSION).zip${CL_RST}
+	@echo -e ${CL_BLD}${CL_RED}"   MD5:"${CL_YLW}" `cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
+	@echo -e ${CL_BLD}${CL_RED}"  SIZE:"${CL_YLW}" `du -h $(PAC_TARGET_PACKAGE) | cut -f1`"${CL_RST}
 	@echo -e ${CL_BLD}${CL_GRN}"================================================================================"${CL_RST}
 
 # -----------------------------------------------------------------

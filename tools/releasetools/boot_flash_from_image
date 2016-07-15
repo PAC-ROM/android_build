@@ -119,7 +119,10 @@ for root, dirs, files in walk(kernel_modules):
     for file in files:
         fn = path.join(root, file)
         if not path.islink(fn):
-            call(['arm-eabi-strip', '--strip-unneeded', fn])
+            if "aarch64" not in environ['ANDROID_TOOLCHAIN']:
+                call(['arm-eabi-strip', '--strip-unneeded', fn])
+            else:
+                call(['aarch64-linux-android-strip', '--strip-unneeded', fn])
 
 # zip package
 with ZipFile("%s.zip" % zip_dir, "w") as zipper:

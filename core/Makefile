@@ -1190,13 +1190,8 @@ FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEP
 # system image.
 INSTALLED_FILES_FILE := $(PRODUCT_OUT)/installed-files.txt
 $(INSTALLED_FILES_FILE): $(FULL_SYSTEMIMAGE_DEPS)
-CHANGELOG_FILE := changelog
-ifeq ($(HOST_OS), Darwin)
-	CHANGELOG_FILE := changelog_mac
-endif
-$(INSTALLED_FILES_FILE): $(FULL_SYSTEMIMAGE_DEPS)
-ifneq ($(SKIP_CHANGELOG), 1)
-	$(hide) ./vendor/pac/tools/$(CHANGELOG_FILE)
+ifneq ($(GENERATE_CHANGELOG), false)
+	$(hide) ./vendor/pac/tools/changelog
 	$(hide) mv $(PRODUCT_OUT)/Changelog.txt $(PRODUCT_OUT)/Changelog-PAC-$(TARGET_DEVICE).txt
 endif
 	@echo Installed file list: $@
